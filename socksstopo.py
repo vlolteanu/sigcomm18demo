@@ -32,7 +32,7 @@ topos = { 'sockstopo': (lambda: SOCKSTopo()) }
  
 if __name__ == '__main__':
 	setLogLevel( 'info' )
-	net = Mininet(topo=SOCKSTopo(), link=TCLink, controller=OVSController)
+	net = Mininet(topo=SOCKSTopo(), link=TCLink, controller=None)
 	net.start()
 	
 	client = net.get('h1')
@@ -46,14 +46,14 @@ if __name__ == '__main__':
 	proxy.cmdPrint('sysctl net.ipv4.ip_forward net.ipv4.ip_forward=1')
 	
 	client.cmdPrint('/home/vlad/sigcomm18demo/proxyme.sh')
-	client.cmdPrint('/home/vlad/sixtysocks/sixtysocks -m proxify -l 12345 -U user -P passwd -s 10.0.12.2 -p 1080 -D &> /dev/null &')
+	client.cmdPrint('/home/vlad/sixtysocks/sixtysocks -m proxify -l 12345 -U user -P passwd -s 10.0.12.2 -p 1080 -D -V /home/vlad/sigcomm18demo/socks.crt &> /dev/null &')
 	
-	proxy.cmdPrint('/home/vlad/sixtysocks/sixtysocks -m proxy -l 1080 -U user -P passwd &> /dev/null &')
+	proxy.cmdPrint('/home/vlad/sixtysocks/sixtysocks -m proxy -t 1080 -U user -P passwd -K /home/vlad/sigcomm18demo/socks.key -C /home/vlad/sigcomm18demo/socks.crt &> /dev/null &')
 	
 	server.cmdPrint('/usr/sbin/start_apache2')
 	
-	#client.cmdPrint('ovs-ofctl add-flow s1 actions=flood')
-	#client.cmdPrint('ovs-ofctl add-flow s2 actions=flood')
+	client.cmdPrint('ovs-ofctl add-flow s1 actions=flood')
+	client.cmdPrint('ovs-ofctl add-flow s2 actions=flood')
 	
 	
 	CLI(net)
